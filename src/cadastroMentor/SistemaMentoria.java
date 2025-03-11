@@ -76,7 +76,7 @@ public class SistemaMentoria {
         return TipoMentor.values()[escolha];
     }
 
-    // Método de listagem com menu de filtros
+    // Metodo de listagem com menu de filtros
     private static void listarMentores() {
         if (!autenticarCoordenador()) {
             System.out.println("Acesso negado! Apenas coordenadores podem listar mentores.");
@@ -96,7 +96,7 @@ public class SistemaMentoria {
         System.out.println("4. Filtrar por tipo de mentor");
         System.out.print("Opção: ");
         int opcao = scanner.nextInt();
-        scanner.nextLine(); // Limpa o buffer
+        scanner.nextLine();
 
         switch (opcao) {
             case 1:
@@ -117,7 +117,7 @@ public class SistemaMentoria {
                 System.out.println("3. Mentor Acadêmico");
                 System.out.print("Opção: ");
                 int tipoOpcao = scanner.nextInt();
-                scanner.nextLine(); // Limpa o buffer
+                scanner.nextLine();
                 listarMentoresPorTipo(tipoOpcao);
                 break;
             default:
