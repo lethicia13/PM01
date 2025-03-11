@@ -2,12 +2,12 @@ package cadastroMentor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class SistemaMentoria {
     private static List<Pessoa> pessoas = new ArrayList<>();
     private static Coordenador coordenadorPadrao = new Coordenador(
             "Admin", "admin@uniamerica.br",
-            new Endereco("Avenida das Cataratas, 1118", "Foz do Iguaçu", "PR"),
             "admin123"
     );
 
@@ -18,12 +18,23 @@ public class SistemaMentoria {
             exibirMenu();
             opcao = Validacao.lerInteiro("Escolha uma opção: ");
             switch (opcao) {
-                case 1: cadastrarMentor(); break;
-                case 2: listarMentores(); break;
-                case 3: modificarMentor(); break;
-                case 4: desativarConta(); break;
-                case 5: System.out.println("Saindo..."); break;
-                default: System.out.println("Opção inválida!");
+                case 1:
+                    cadastrarMentor();
+                    break;
+                case 2:
+                    listarMentores();
+                    break;
+                case 3:
+                    modificarMentor();
+                    break;
+                case 4:
+                    desativarConta();
+                    break;
+                case 5:
+                    System.out.println("Saindo...");
+                    break;
+                default:
+                    System.out.println("Opção inválida!");
             }
         } while (opcao != 5);
     }
@@ -65,6 +76,7 @@ public class SistemaMentoria {
         return TipoMentor.values()[escolha];
     }
 
+    // Método de listagem com menu de filtros
     private static void listarMentores() {
         if (!autenticarCoordenador()) {
             System.out.println("Acesso negado! Apenas coordenadores podem listar mentores.");
@@ -73,12 +85,111 @@ public class SistemaMentoria {
 
         if (pessoas.isEmpty()) {
             System.out.println("Nenhum cadastro encontrado.");
-        } else {
-            for (Pessoa pessoa : pessoas) {
-                if (pessoa instanceof Mentor) {
-                    System.out.println(pessoa + "\n---------------");
-                }
+            return;
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Escolha uma opção de listagem:");
+        System.out.println("1. Todos os mentores");
+        System.out.println("2. Mentores ativos");
+        System.out.println("3. Filtrar por curso");
+        System.out.println("4. Filtrar por tipo de mentor");
+        System.out.print("Opção: ");
+        int opcao = scanner.nextInt();
+        scanner.nextLine(); // Limpa o buffer
+
+        switch (opcao) {
+            case 1:
+                listarTodosMentores();
+                break;
+            case 2:
+                listarMentoresAtivos();
+                break;
+            case 3:
+                System.out.print("Digite o curso: ");
+                String curso = scanner.nextLine();
+                listarMentoresPorCurso(curso);
+                break;
+            case 4:
+                System.out.println("Escolha o tipo de mentor:");
+                System.out.println("1. Mentor Formado");
+                System.out.println("2. Mentor Experiente");
+                System.out.println("3. Mentor Acadêmico");
+                System.out.print("Opção: ");
+                int tipoOpcao = scanner.nextInt();
+                scanner.nextLine(); // Limpa o buffer
+                listarMentoresPorTipo(tipoOpcao);
+                break;
+            default:
+                System.out.println("Opção inválida.");
+        }
+    }
+
+    private static void listarTodosMentores() {
+        boolean encontrou = false;
+        for (Pessoa pessoa : pessoas) {
+            if (pessoa instanceof Mentor) {
+                System.out.println(pessoa + "\n---------------");
+                encontrou = true;
             }
+        }
+        if(!encontrou){
+            System.out.println("Nenhum mentor ativo encontrado.");
+        }
+    }
+
+    private static void listarMentoresAtivos() {
+        boolean encontrou = false;
+        for (Pessoa pessoa : pessoas) {
+            if (pessoa instanceof Mentor mentor && mentor.isAtivo()) {
+                System.out.println(mentor + "\n---------------");
+                encontrou = true;
+            }
+        }
+        if (!encontrou) {
+            System.out.println("Nenhum mentor ativo encontrado.");
+        }
+    }
+
+    private static void listarMentoresPorCurso(String curso) {
+        boolean encontrou = false;
+        for (Pessoa pessoa : pessoas) {
+            if (pessoa instanceof Mentor mentor && mentor.getFormacao().equalsIgnoreCase(curso)) {
+                System.out.println(mentor + "\n---------------");
+                encontrou = true;
+            }
+        }
+        if (!encontrou) {
+            System.out.println("Nenhum mentor encontrado para o curso: " + curso);
+        }
+    }
+
+    private static void listarMentoresPorTipo(int tipoOpcao) {
+        if (tipoOpcao < 1 || tipoOpcao > 3) {
+            System.out.println("Opção de tipo inválida.");
+            return;
+        }
+        TipoMentor tipoSelecionado = null;
+        switch (tipoOpcao) {
+            case 1:
+                tipoSelecionado = TipoMentor.Formado;
+                break;
+            case 2:
+                tipoSelecionado = TipoMentor.Experiente;
+                break;
+            case 3:
+                tipoSelecionado = TipoMentor.Academico;
+                break;
+        }
+        boolean encontrou = false;
+        for (Pessoa pessoa : pessoas) {
+            if (pessoa instanceof Mentor mentor && mentor.getTipo() == tipoSelecionado) {
+                System.out.println(mentor + "\n---------------");
+                encontrou = true;
+            }
+        }
+        if (!encontrou) {
+            System.out.println("Nenhum mentor encontrado para o tipo selecionado.");
         }
     }
 
@@ -146,7 +257,6 @@ public class SistemaMentoria {
                     pessoaAlvo = buscarMentorPorEmail(email);
                 }
                 break;
-
             case 2:
                 String email = Validacao.lerString("Seu email: ");
                 String senha = Validacao.lerString("Sua senha: ");
@@ -155,7 +265,6 @@ public class SistemaMentoria {
                     autenticado = true;
                 }
                 break;
-
             default:
                 System.out.println("Opção inválida!");
                 return;
